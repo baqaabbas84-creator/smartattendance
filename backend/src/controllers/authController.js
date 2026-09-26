@@ -98,12 +98,29 @@ const registerTeacher = async (req, res, next) => {
 // ─── Login ─────────────────────────────────────────────────────────────────────
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
 
-    // Explicitly select password for comparison
-    const user = await User.findOne({ email }).select('+password');
+    // 1. Try finding by email
+    let user = await User.findOne({ email: identifier }).select('+password');
+
+    // 2. Try finding by student rollNumber
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      const student = await Student.findOne({ rollNumber: identifier });
+      if (student) {
+        user = await User.findById(student.userId).select('+password');
+      }
+    }
+
+    // 3. Try finding by teacher employeeId
+    if (!user) {
+      const teacher = await Teacher.findOne({ employeeId: identifier.toUpperCase() });
+      if (teacher) {
+        user = await User.findById(teacher.userId).select('+password');
+      }
+    }
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
     if (!user.isActive) {
       return res.status(401).json({ success: false, message: 'Account is deactivated.' });

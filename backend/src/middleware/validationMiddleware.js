@@ -23,7 +23,7 @@ const validate = (req, res, next) => {
 // ─── Auth Validators ─────────────────────────────────────────────────────────
 const validateStudentRegister = [
   body('name').trim().notEmpty().withMessage('Name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('email').trim().isEmail().withMessage('Valid email is required').matches(/@gmail\.com$/i).withMessage('Only @gmail.com addresses are allowed').normalizeEmail(),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('rollNumber').trim().notEmpty().withMessage('Roll number is required'),
   body('branch').trim().notEmpty().withMessage('Branch is required'),
@@ -34,7 +34,7 @@ const validateStudentRegister = [
 
 const validateTeacherRegister = [
   body('name').trim().notEmpty().withMessage('Name is required').isLength({ min: 2 }),
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('email').trim().isEmail().withMessage('Valid email is required').matches(/@gmail\.com$/i).withMessage('Only @gmail.com addresses are allowed').normalizeEmail(),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('employeeId').trim().notEmpty().withMessage('Employee ID is required'),
   body('department').trim().notEmpty().withMessage('Department is required'),
@@ -42,7 +42,7 @@ const validateTeacherRegister = [
 ];
 
 const validateLogin = [
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('identifier').trim().notEmpty().withMessage('User ID is required'),
   body('password').notEmpty().withMessage('Password is required'),
   validate,
 ];
