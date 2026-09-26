@@ -17,6 +17,18 @@ const authService = {
     } catch (e) {
       console.error('Logout error', e);
     }
+  },
+
+  registerStudent: async (data) => {
+    try {
+      const response = await api.post('/auth/register/student', data);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        return error.response.data;
+      }
+      return { success: false, message: 'Network error or server unreachable' };
+    }
   }
 };
 
