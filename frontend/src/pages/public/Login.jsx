@@ -6,28 +6,12 @@ import { QrCode, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const handleDemoFill = (r) => {
-    setRole(r);
-    if (r === 'student') {
-      setEmail('arjun.singh@student.sas.edu');
-      setPassword('Student@123');
-    } else if (r === 'teacher') {
-      setEmail('rajesh.kumar@sas.edu');
-      setPassword('Teacher@123');
-    } else if (r === 'admin') {
-      setEmail('admin@sas.edu');
-      setPassword('Admin@123');
-    }
-    setError('');
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -85,23 +69,6 @@ const Login = () => {
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900">Sign In</h2>
             <p className="text-slate-500 mt-2">Enter your credentials to continue</p>
-          </div>
-          
-          {/* Demo role selector */}
-          <div className="mb-8 p-4 bg-brand-50 rounded-xl border border-brand-100">
-            <p className="text-xs font-semibold text-brand-700 uppercase tracking-wider mb-3">Quick Demo Login</p>
-            <div className="flex gap-2">
-              {['student', 'teacher', 'admin'].map(r => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => handleDemoFill(r)}
-                  className={`flex-1 py-1.5 text-sm font-medium rounded-lg capitalize transition-all ${role === r ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
           </div>
 
           {error && (
