@@ -4,6 +4,7 @@ import authService from '../../services/authService';
 import { QrCode } from 'lucide-react';
 
 const Register = () => {
+  const [role, setRole] = useState('student');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,7 +12,9 @@ const Register = () => {
     rollNumber: '',
     branch: '',
     year: '1',
-    section: ''
+    section: '',
+    employeeId: '',
+    department: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,16 +25,38 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleRoleSwitch = (r) => {
+    setRole(r);
+    setError('');
+    setSuccess('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
 
-    const res = await authService.registerStudent({
-      ...formData,
-      year: parseInt(formData.year, 10)
-    });
+    let res;
+    if (role === 'student') {
+      res = await authService.registerStudent({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        rollNumber: formData.rollNumber,
+        branch: formData.branch,
+        year: parseInt(formData.year, 10),
+        section: formData.section
+      });
+    } else {
+      res = await authService.registerTeacher({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        employeeId: formData.employeeId,
+        department: formData.department
+      });
+    }
 
     if (res.success) {
       setSuccess('Registration successful! You can now login.');
@@ -47,6 +72,8 @@ const Register = () => {
     }
     setLoading(false);
   };
+
+  const inputClass = "w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white";
 
   return (
     <div className="min-h-screen flex bg-slate-50 font-sans">
@@ -64,7 +91,9 @@ const Register = () => {
               Join SmartAttend Today
             </h1>
             <p className="text-lg text-slate-300">
-              Create a student account to start marking your attendance securely via QR codes.
+              {role === 'student'
+                ? 'Create a student account to start marking your attendance securely via QR codes.'
+                : 'Create a teacher account to manage classes, sessions, and student attendance.'}
             </p>
           </div>
           <div className="flex gap-4">
@@ -77,9 +106,27 @@ const Register = () => {
       
       <div className="flex-1 flex items-center justify-center p-6 py-12 overflow-y-auto">
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h2 className="text-3xl font-bold text-slate-900">Create Account</h2>
-            <p className="text-slate-500 mt-2">Sign up as a new student</p>
+            <p className="text-slate-500 mt-2">Sign up to get started</p>
+          </div>
+
+          {/* Role Selector */}
+          <div className="mb-6 flex gap-2 p-1 bg-slate-100 rounded-xl">
+            <button
+              type="button"
+              onClick={() => handleRoleSwitch('student')}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === 'student' ? 'bg-brand-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+            >
+              Student
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRoleSwitch('teacher')}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === 'teacher' ? 'bg-brand-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+            >
+              Teacher
+            </button>
           </div>
 
           {error && (
@@ -95,11 +142,12 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              {/* Common Fields */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                 <input 
                   type="text" name="name" value={formData.name} onChange={handleChange} required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
+                  className={inputClass}
                   placeholder="John Doe"
                 />
               </div>
@@ -108,7 +156,7 @@ const Register = () => {
                 <input 
                   type="email" name="email" value={formData.email} onChange={handleChange} required
                   pattern=".*@gmail\.com$" title="Only @gmail.com addresses are allowed"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
+                  className={inputClass}
                   placeholder="john.doe@gmail.com"
                 />
               </div>
@@ -116,43 +164,71 @@ const Register = () => {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
                 <input 
                   type="password" name="password" value={formData.password} onChange={handleChange} required minLength="6"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
+                  className={inputClass}
                   placeholder="••••••••"
                 />
               </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Roll Number</label>
-                <input 
-                  type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
-                  placeholder="e.g. CS2024001"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
-                <input 
-                  type="text" name="branch" value={formData.branch} onChange={handleChange} required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
-                  placeholder="e.g. CSE"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Year</label>
-                <select name="year" value={formData.year} onChange={handleChange} required className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white">
-                  <option value="1">1st Year</option>
-                  <option value="2">2nd Year</option>
-                  <option value="3">3rd Year</option>
-                  <option value="4">4th Year</option>
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Section</label>
-                <input 
-                  type="text" name="section" value={formData.section} onChange={handleChange} required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all bg-slate-50 focus:bg-white"
-                  placeholder="e.g. A"
-                />
-              </div>
+
+              {/* Student-specific Fields */}
+              {role === 'student' && (
+                <>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Roll Number</label>
+                    <input 
+                      type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required
+                      className={inputClass}
+                      placeholder="e.g. CS2024001"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
+                    <input 
+                      type="text" name="branch" value={formData.branch} onChange={handleChange} required
+                      className={inputClass}
+                      placeholder="e.g. CSE"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Year</label>
+                    <select name="year" value={formData.year} onChange={handleChange} required className={inputClass}>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Section</label>
+                    <input 
+                      type="text" name="section" value={formData.section} onChange={handleChange} required
+                      className={inputClass}
+                      placeholder="e.g. A"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Teacher-specific Fields */}
+              {role === 'teacher' && (
+                <>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Employee ID</label>
+                    <input 
+                      type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} required
+                      className={inputClass}
+                      placeholder="e.g. EMP001"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+                    <input 
+                      type="text" name="department" value={formData.department} onChange={handleChange} required
+                      className={inputClass}
+                      placeholder="e.g. Computer Science"
+                    />
+                  </div>
+                </>
+              )}
             </div>
             
             <button 

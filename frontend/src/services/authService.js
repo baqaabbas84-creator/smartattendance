@@ -29,6 +29,18 @@ const authService = {
       }
       return { success: false, message: 'Network error or server unreachable' };
     }
+  },
+
+  registerTeacher: async (data) => {
+    try {
+      const response = await api.post('/auth/register/teacher', data);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        return error.response.data;
+      }
+      return { success: false, message: 'Network error or server unreachable' };
+    }
   }
 };
 
